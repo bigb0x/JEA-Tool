@@ -1,6 +1,6 @@
 # Automated JEA Configuration Tool
 
-![Banner](screen.jpg)
+![Banner](JEA-TOOL.png)
 
 A PowerShell script to configure Just Enough Administration (JEA) for automation tools like Ansible, BMC Discovery, and other remote management systems that needs admin rights permissions. The script will autoamte JEA configuration to comply with enterprise security policies while enabling remote access for automation.
 
