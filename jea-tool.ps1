@@ -1,11 +1,11 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    JEA Configuration Script
+    JEA Tool
 .DESCRIPTION
-    Configures Just Enough Administration (JEA) for BMC Discovery
+    Configures Just Enough Administration (JEA) for user automation tools like BMC Discovery and ansible.
 .AUTHOR
-    BMC Discovery Team
+    M Ali
 .VERSION
     1.2
 #>
@@ -158,7 +158,7 @@ try {
     try {
         $existingGroup = Get-LocalGroup -Name $JEAGroup -ErrorAction SilentlyContinue
         if (-not $existingGroup) {
-            New-LocalGroup -Name $JEAGroup -Description "JEA Discovery Group"
+            New-LocalGroup -Name $JEAGroup -Description "JEA User Group"
             Write-Log "Created local group: $JEAGroup" "INFO"
             Start-Sleep -Seconds $WaitTime  # Wait for group creation to propagate
         }
@@ -189,7 +189,7 @@ try {
             $userParams = @{
                 Name = $JEAUSER
                 Password = $securePassword
-                Description = "JEA User for Discovery"
+                Description = "JEA User for Automation Tools"
                 PasswordNeverExpires = $true
                 UserMayNotChangePassword = $true
             }
