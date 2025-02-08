@@ -27,8 +27,8 @@ A PowerShell script to configure Just Enough Administration (JEA) for automation
 wget https://github.com/bigb0x/JEA-Tool.git
 ```
 
-### 2. Customization (Pre-Run)
-Edit these variables in the script for your environment:
+### 2. Script Valuables
+Edit these variables in the script to match your environment:
 ```powershell
 $JEAUSER = "AutomationUser"  # Service account name
 $JEAGroup = "JEA-Automation"  # Security group
