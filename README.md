@@ -1,16 +1,16 @@
-# Automated JEA Configuration Tool
+# JEA Tool- Automated JEA Configuration Tool
 
 ![Banner](JEA-TOOL.png)
 
 A PowerShell script to configure Just Enough Administration (JEA) for automation tools like Ansible, BMC Discovery, and other remote management systems that needs admin rights permissions. The script will autoamte JEA configuration to comply with enterprise security policies while enabling remote access for automation.
 
-## 📋 Overview
+## Overview
 - Creates secure JEA endpoints for automation tools
-- Configures restricted users/groups with granular permissions
+- Configures restricted users/groups for JEA permissions
 - Generates session transcripts and logs
 - Supports Windows Server 2016+/Windows 10+ with PowerShell 5.1+
 
-## ⚙️ Prerequisites
+## Prerequisites
 1. **Run as Administrator**: Required for system changes
 2. **PowerShell Execution Policy**: Set to `RemoteSigned` or `Unrestricted`
    ```powershell
@@ -65,13 +65,13 @@ Create a new BMC Discovery Windows Credentials, enable JEA and used the generate
 ---
 
 
-## 💬 Contact
+## Contact
 
 For any suggestions or thoughts, please get in touch with [me](https://x.com/MohamedNab1l).
 ---
 
 
-##  Disclaimer
+###  Disclaimer
 **Important:** This script is provided as-is without any warranties. By using this tool, you agree that:
 - **Credentials are your responsibility** - Default password **MUST** be changed post-deployment
 - **Compliance requirements** - Verify configuration meets your organization's security policies
