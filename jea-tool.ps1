@@ -8,26 +8,29 @@
     M Ali
 .VERSION
     1.2
+
+https://github.com/bigb0x/JEA-Tool    
 #>
 
-# Script metadata
+# Change this to match your environment:
+$JEAUSER = "JeaUser" # JEA user
+$DefaultPassword = "P@ssw0rd123!@#"  # Complex password 
+$JEAPATH = "JEA" # JEA configuration path
+$JEAGroup = "JEAGroup" # Local JEA user group
+$JEAEndpoint = "JEAEndpoint" # JEA endpoint name
+$Author = "M Ali" # Author name to be shown in the configuration files
+$CompanyName = "NA" # Company name to be shown in the configuration files
+$JEADiscoveryCapabilities = "JEACapabilities" # JEA capabilities directory
+$Description = "JEA role capabilities for RestrictedRemoteServer session type" # Description for configuration files
+$WaitTime = 2  # Seconds to wait for operations to propagate
+
+# Script variables
 $ScriptVersion = "1.2"
 $LastUpdated = "2024"
 $SAVELOG = 1  # Set to 1 to save logs, 0 to disable
 $ScriptPath = $PSScriptRoot
 $LogFile = Join-Path $ScriptPath "output.log"
 
-# Predefined variables
-$JEAUSER = "JeaUser"
-$DefaultPassword = "P@ssw0rd123!@#"  # Complex password meeting requirements
-$JEAPATH = "JEA"
-$JEAGroup = "JEAGroup"
-$JEAEndpoint = "JEAEndpoint"
-$Author = "M Ali"
-$CompanyName = "NA"
-$JEADiscoveryCapabilities = "JEACapabilities"
-$Description = "JEA role capabilities for RestrictedRemoteServer session type"
-$WaitTime = 2  # Seconds to wait for operations to propagate
 
 # ASCII Banner
 function Show-Banner {
@@ -46,14 +49,14 @@ By: x.com/MohamedNab1l
     Write-Host $banner -ForegroundColor Cyan
 }
 
-# Check for admin privileges
+
 function Test-AdminPrivileges {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($identity)
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Enhanced logging function
+
 function Write-Log {
     param(
         [string]$Message,
@@ -64,7 +67,7 @@ function Write-Log {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "[$timestamp][$Type] $Message"
     
-    # Console output with colors
+    
     if (-not $NoConsole) {
         switch ($Type) {
             "INFO"  { $color = "Green" }
@@ -76,7 +79,7 @@ function Write-Log {
         Write-Host $logMessage -ForegroundColor $color
     }
 
-    # Save to log file if enabled
+  
     if ($SAVELOG -eq 1) {
         try {
             Add-Content -Path $LogFile -Value $logMessage -ErrorAction Stop
@@ -87,7 +90,7 @@ function Write-Log {
     }
 }
 
-# Initialize log file
+
 function Initialize-Logging {
     if ($SAVELOG -eq 1) {
         try {
@@ -110,7 +113,7 @@ User: $env:USERNAME
         }
     }
 }
-# Main script execution
+
 try {
     Clear-Host
     Show-Banner
@@ -130,7 +133,6 @@ try {
     Write-Log "Administrative privileges confirmed" "DEBUG"
     Write-Log "Starting JEA configuration..."
 
-    # Create required directories
     Write-Log "Creating required directories..." "DEBUG"
     $paths = @(
         "C:\$JEAPATH\$JEADiscoveryCapabilities",
@@ -148,19 +150,16 @@ try {
         }
     }
 
-    # User and Group Management
     Write-Log "Starting user and group management..." "DEBUG"
     
-    # Create secure password
     $securePassword = ConvertTo-SecureString -String $DefaultPassword -AsPlainText -Force
 
-    # Group Creation First
     try {
         $existingGroup = Get-LocalGroup -Name $JEAGroup -ErrorAction SilentlyContinue
         if (-not $existingGroup) {
             New-LocalGroup -Name $JEAGroup -Description "JEA User Group"
             Write-Log "Created local group: $JEAGroup" "INFO"
-            Start-Sleep -Seconds $WaitTime  # Wait for group creation to propagate
+            Start-Sleep -Seconds $WaitTime
         }
         else {
             Write-Log "Group $JEAGroup already exists" "DEBUG"
@@ -171,7 +170,6 @@ try {
         throw
     }
 
-    # User Creation/Update
     try {
         $existingUser = Get-LocalUser -Name $JEAUSER -ErrorAction SilentlyContinue
         if ($existingUser) {
@@ -195,7 +193,7 @@ try {
             }
             New-LocalUser @userParams
             Write-Log "Created local user: $JEAUSER" "INFO"
-            Start-Sleep -Seconds $WaitTime  # Wait for user creation to propagate
+            Start-Sleep -Seconds $WaitTime
         }
     }
     catch {
@@ -203,7 +201,6 @@ try {
         throw
     }
 
-    # Add User to Group
     try {
         $groupMembers = Get-LocalGroupMember -Group $JEAGroup -ErrorAction SilentlyContinue
         $userInGroup = $groupMembers | Where-Object { $_.Name -like "*\$JEAUSER" }
@@ -214,7 +211,7 @@ try {
             
             Add-LocalGroupMember -Group $JEAGroup -Member $fullUserName
             Write-Log "Added $JEAUSER to $JEAGroup" "INFO"
-            Start-Sleep -Seconds $WaitTime  # Wait for group membership to propagate
+            Start-Sleep -Seconds $WaitTime
         }
         else {
             Write-Log "User $JEAUSER is already a member of $JEAGroup" "DEBUG"
@@ -225,7 +222,6 @@ try {
         throw
     }
 
-    # Create role capabilities file
     Write-Log "Creating role capabilities file..." "DEBUG"
     $RCHT = @{
         Path = "C:\$JEAPATH\$JEADiscoveryCapabilities\RestrictedRemoteServer.psrc"
@@ -248,7 +244,6 @@ try {
     New-PSRoleCapabilityFile @RCHT
     Write-Log "Role capabilities file created successfully" "INFO"
 
-    # Create session configuration
     Write-Log "Creating session configuration..." "DEBUG"
     $RDHT = @{
         "$JEAGroup" = @{
@@ -270,27 +265,25 @@ try {
     New-PSSessionConfigurationFile @PSCHT
     Write-Log "Session configuration file created successfully" "INFO"
 
-    # Test configuration file
     Write-Log "Testing session configuration file..." "DEBUG"
     if (-not (Test-PSSessionConfigurationFile -Path "C:\$JEAPATH\JEADiscoverySessionConfiguration\Discovery.pssc")) {
         throw "Session configuration file test failed"
     }
     Write-Log "Session configuration file test passed successfully" "INFO"
 
-    # Enable PS Remoting
     Write-Log "Enabling PowerShell remoting..." "DEBUG"
     Enable-PSRemoting -Force -SkipNetworkProfileCheck
     Write-Log "PowerShell remoting enabled successfully" "INFO"
 
-    # Handle existing endpoint
+
     if (Get-PSSessionConfiguration -Name $JEAEndpoint -ErrorAction SilentlyContinue) {
         Write-Log "Existing endpoint found, unregistering..." "DEBUG"
         Unregister-PSSessionConfiguration -Name $JEAEndpoint -Force
         Write-Log "Existing endpoint unregistered" "INFO"
-        Start-Sleep -Seconds $WaitTime  # Wait for unregistration to complete
+        Start-Sleep -Seconds $WaitTime
     }
 
-    # Register PS Session Configuration
+  
     Write-Log "Registering new PS Session Configuration..." "DEBUG"
     $registerResult = Register-PSSessionConfiguration -Path "C:\$JEAPATH\JEADiscoverySessionConfiguration\Discovery.pssc" `
         -Name $JEAEndpoint -Force -ErrorVariable registerError
@@ -309,7 +302,6 @@ try {
         Write-Log "PS Session Configuration registered successfully" "INFO"
     }
 
-    # Restart WinRM
     Write-Log "Restarting WinRM service..." "DEBUG"
     Restart-Service WinRM -Force
     Start-Sleep -Seconds $WaitTime  # Wait for service to restart
